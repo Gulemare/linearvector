@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "linearvector.h"
+#include <complex>
 //--------------------------------------------------------------------
 TEST(Constructors, defaultZeros) {
     LinearVector<3> v;
@@ -223,3 +224,48 @@ TEST(Exceptions, get2) {
     EXPECT_TRUE(is_catched);
 }
 //--------------------------------------------------
+class ComplexVectorTest : public ::testing::Test {
+protected:
+    typedef std::complex<double> Complex;
+    typedef LinearVector<3, Complex> Vector;
+    ComplexVectorTest() :
+        a({ Complex(2.0, 2.0), Complex(0.0, 1.0), Complex(1.0, -1.0) }),
+        b({ Complex(0.0, 2.0), Complex(-1.0, 1.0), Complex(1.0, 0.0) })
+    {}
+    Vector a;
+    Vector b;
+};
+
+TEST_F(ComplexVectorTest, init) {
+    EXPECT_EQ(a[0], Complex(2.0, 2.0));
+    EXPECT_EQ(a[1], Complex(0.0, 1.0));
+    EXPECT_EQ(a[2], Complex(1.0, -1.0));
+}
+
+TEST_F(ComplexVectorTest, sum) {
+    Vector res = a + b;
+    EXPECT_EQ(res[0], Complex(2.0, 4.0));
+    EXPECT_EQ(res[1], Complex(-1.0, 2.0));
+    EXPECT_EQ(res[2], Complex(2.0, -1.0));
+}
+
+TEST_F(ComplexVectorTest, difference) {
+    Vector res = a - b;
+    EXPECT_EQ(res[0], Complex(2.0, 0.0));
+    EXPECT_EQ(res[1], Complex(1.0, 0.0));
+    EXPECT_EQ(res[2], Complex(0.0, -1.0));
+}
+
+TEST_F(ComplexVectorTest, unarySum) {
+    a += Complex(10.0, 0.0);
+    EXPECT_EQ(a[0], Complex(12.0, 2.0));
+    EXPECT_EQ(a[1], Complex(10.0, 1.0));
+    EXPECT_EQ(a[2], Complex(11.0, -1.0));
+}
+
+TEST_F(ComplexVectorTest, unaryDivision) {
+    a /= Complex(2.0, 0.0);
+    EXPECT_EQ(a[0], Complex(1.0, 1.0));
+    EXPECT_EQ(a[1], Complex(0.0, 0.5));
+    EXPECT_EQ(a[2], Complex(0.5, -0.5));
+}
