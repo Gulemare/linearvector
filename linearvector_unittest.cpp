@@ -223,14 +223,15 @@ TEST(Exceptions, get2) {
     catch (std::exception & ex) {is_catched = true;}
     EXPECT_TRUE(is_catched);
 }
+
 //--------------------------------------------------
 class ComplexVectorTest : public ::testing::Test {
 protected:
     typedef std::complex<double> Complex;
     typedef LinearVector<3, Complex> Vector;
     ComplexVectorTest() :
-        a({ Complex(2.0, 2.0), Complex(0.0, 1.0), Complex(1.0, -1.0) }),
-        b({ Complex(0.0, 2.0), Complex(-1.0, 1.0), Complex(1.0, 0.0) })
+        a({        {2.0, 2.0},         {0.0, 1.0},        {1.0, -1.0} }), // init fully by initialiser lists
+        b({ Complex(0.0, 2.0), Complex(-1.0, 1.0), Complex(1.0, 0.0) })   // init with constructor of type
     {}
     Vector a;
     Vector b;
@@ -268,4 +269,51 @@ TEST_F(ComplexVectorTest, unaryDivision) {
     EXPECT_EQ(a[0], Complex(1.0, 1.0));
     EXPECT_EQ(a[1], Complex(0.0, 0.5));
     EXPECT_EQ(a[2], Complex(0.5, -0.5));
+}
+
+//------------------------------------------------------
+class MatrixTest : public ::testing::Test {
+protected:
+    typedef LinearVector<2> Vector2;
+    typedef LinearVector<2, Vector2> Matrix2x2;
+    MatrixTest() : 
+        m({ { 2.0,  1.0 } ,
+            { 0.0, -2.0 } }) 
+    {}
+    Matrix2x2 m;
+};
+
+TEST_F(MatrixTest, get) {
+    double val = m[1][1];
+    EXPECT_EQ(val, -2.0);
+}
+
+TEST_F(MatrixTest, setVal) {
+    m[1][1] = 10.0;
+    EXPECT_EQ(m[1][1], 10.0);
+}
+
+TEST_F(MatrixTest, setRow) {
+    m[1] = { 5.0, 5.0 };
+    EXPECT_EQ(m[1][1], 5.0);
+}
+
+TEST_F(MatrixTest, sum) {
+    Matrix2x2 a = { {1.0, 0.0},
+                    {0.0, 1.0} };
+    m += a;
+
+    EXPECT_EQ(m[0][0], 3.0);
+    EXPECT_EQ(m[0][1], 1.0);
+    EXPECT_EQ(m[1][0], 0.0);
+    EXPECT_EQ(m[1][1], -1.0);
+}
+
+TEST_F(MatrixTest, addToRows) {
+    m += Vector2({ 2.0, 3.0 });
+
+    EXPECT_EQ(m[0][0], 4.0);
+    EXPECT_EQ(m[0][1], 4.0);
+    EXPECT_EQ(m[1][0], 2.0);
+    EXPECT_EQ(m[1][1], 1.0);
 }
